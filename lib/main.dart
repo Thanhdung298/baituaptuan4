@@ -13,11 +13,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Danh sach san pham',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomeScreen(),
+      home: const HomeScreen(),
       // home: ProductListScreen(),
     );
   }
@@ -30,7 +31,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Trang chủ"),
+        title: const Text("Trang chủ"),
       ),
       body: Center(
         child: ElevatedButton(
@@ -40,7 +41,7 @@ class HomeScreen extends StatelessWidget {
               MaterialPageRoute(builder: (context) => ProductListScreen()),
             );
           },
-          child: Text("Go to ProductListScreen"),
+          child: const Text("Go to ProductListScreen"),
         ),
       ),
     );
@@ -174,7 +175,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Danh sach san pham"),
+        title: const Text("Danh sach san pham"),
       ),
       body: products != null
           ? ListView.builder(
@@ -196,6 +197,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     height: 50,
                     fit: BoxFit.cover,
                   ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              ProductDetailScreen(products[index])),
+                    );
+                  },
                 );
               })
           : const Center(
@@ -204,6 +213,77 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
   }
 }
+
+class ProductDetailScreen extends StatelessWidget {
+  final Product product;
+
+  ProductDetailScreen(this.product);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Product detail"),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        const CartScreen()),
+              );
+            },
+            child: const Icon(Icons.shopping_cart),
+            style: ElevatedButton.styleFrom(
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(6),
+            ),
+          )
+        ],
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Image.network(product.search_image, width: 200, height: 200,),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text("Id: ${product.styleid}"),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text("Info: ${product.product_additional_info}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text("Brand: ${product.brands_filter_facet}"),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text("Price: ${product.price}"),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CartScreen extends StatelessWidget {
+  const CartScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Shopping cart"),
+      ),
+      body: const Center(
+        child: Text("Giỏ hàng của bạn"),
+      ),
+    );
+  }
+}
+
 
 class Product {
   String search_image;
