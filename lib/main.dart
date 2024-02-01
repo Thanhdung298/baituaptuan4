@@ -56,6 +56,8 @@ class ProductListScreen extends StatefulWidget {
 class _ProductListScreenState extends State<ProductListScreen> {
   late List<Product> products;
 
+  final Cart cart = Cart();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -202,7 +204,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              ProductDetailScreen(products[index])),
+                              ProductDetailScreen(products[index], cart)),
                     );
                   },
                 );
@@ -216,8 +218,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
 class ProductDetailScreen extends StatelessWidget {
   final Product product;
+  final Cart cart;
 
-  ProductDetailScreen(this.product);
+  ProductDetailScreen(this.product, this.cart);
 
   @override
   Widget build(BuildContext context) {
@@ -227,11 +230,13 @@ class ProductDetailScreen extends StatelessWidget {
         actions: [
           ElevatedButton(
             onPressed: () {
+              cart.addToCart(product);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("San pham da duoc them vao gio hang"))
+              );
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        const CartScreen()),
+                MaterialPageRoute(builder: (context) => CartScreen(cart)),
               );
             },
             child: const Icon(Icons.shopping_cart),
@@ -245,14 +250,21 @@ class ProductDetailScreen extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.network(product.search_image, width: 200, height: 200,),
+          Image.network(
+            product.search_image,
+            width: 200,
+            height: 200,
+          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text("Id: ${product.styleid}"),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text("Info: ${product.product_additional_info}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+            child: Text(
+              "Info: ${product.product_additional_info}",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -269,7 +281,9 @@ class ProductDetailScreen extends StatelessWidget {
 }
 
 class CartScreen extends StatelessWidget {
-  const CartScreen({Key? key}) : super(key: key);
+  final Cart cart;
+
+  CartScreen(this.cart);
 
   @override
   Widget build(BuildContext context) {
@@ -277,13 +291,26 @@ class CartScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Shopping cart"),
       ),
-      body: const Center(
-        child: Text("Giỏ hàng của bạn"),
+      body: ListView.builder(
+        itemCount: cart.items.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(cart.items[index].search_image),
+            subtitle: Text(cart.items[index].price),
+          );
+        },
       ),
     );
   }
 }
 
+class Cart {
+  List<Product> items = [];
+
+  void addToCart(Product p) {
+    items.add(p);
+  }
+}
 
 class Product {
   String search_image;
